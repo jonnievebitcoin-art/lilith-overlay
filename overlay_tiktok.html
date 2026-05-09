@@ -199,6 +199,34 @@
     box-shadow: 0 0 6px var(--cyan);
   }
 
+  /* ===== JARVIS GLOW ===== */
+  .jarvis-container {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .jarvis-glow {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(0,245,255,0.6) 40%, transparent 70%);
+    box-shadow: 0 0 20px rgba(0,245,255,0.3), 0 0 40px rgba(0,245,255,0.1);
+    transition: all 0.1s ease;
+    opacity: 0.2;
+  }
+
+  .jarvis-glow.speaking {
+    opacity: 1;
+    box-shadow: 0 0 60px rgba(0,245,255,1), 0 0 120px rgba(0,245,255,0.6), 0 0 200px rgba(255,255,255,0.3);
+  }
+
   /* ===== STATS GRID ===== */
   .stats-grid {
     display: grid;
@@ -597,6 +625,10 @@
   <!-- ESPACIO LILITH VTUBER -->
   <div class="lilith-space">
     <div class="lilith-frame"></div>
+    <!-- GLOW JARVIS -->
+    <div class="jarvis-container">
+      <div class="jarvis-glow" id="jarvisGlow"></div>
+    </div>
     <div class="lilith-status">
       <span class="lilith-status-dot"></span>
       IA ACTIVA
@@ -831,6 +863,27 @@ function runDemo() {
 connectWS();
 updateStats();
 runDemo();
+
+// ===== GLOW JARVIS =====
+const jarvisGlow = document.getElementById('jarvisGlow');
+let isSpeaking = false;
+
+function checkSpeaking() {
+  fetch('http://localhost:9090/api/status')
+    .then(r => r.json())
+    .then(d => {
+      isSpeaking = d.speaking || false;
+      jarvisGlow.classList.toggle('speaking', isSpeaking);
+    })
+    .catch(() => {
+      // Sin servidor: simular habla aleatoria para demo
+      if (Math.random() < 0.05) {
+        isSpeaking = !isSpeaking;
+        jarvisGlow.classList.toggle('speaking', isSpeaking);
+      }
+    });
+}
+setInterval(checkSpeaking, 100);
 </script>
 </body>
 </html>
